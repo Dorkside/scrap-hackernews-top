@@ -1,0 +1,35 @@
+name: Fetch Hacker News Stories
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Run every hour
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  fetch-and-commit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Fetch HN stories
+        run: npm run fetch-news
+        
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+      - name: Commit and push if changes
+        run: |
+          git add data/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update HN Stories [skip ci]" && git push) 
