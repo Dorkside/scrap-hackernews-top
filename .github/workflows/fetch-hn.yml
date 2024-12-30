@@ -32,6 +32,9 @@ jobs:
           git config --global user.email "contact@james-martin.dev"
           
       - name: Commit and push if changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add data/
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update HN Stories [skip ci]" && git push) 
